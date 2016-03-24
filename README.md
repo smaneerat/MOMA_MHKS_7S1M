@@ -1,7 +1,10 @@
 # MOMA_MHKS_7S1M
 Author Somsakun Maneerat,
 
-ANR AEDESS et FP7 DENFREE Projects, UMR IDEES, Université de rouen, France
+ANR AEDESS et FP7 DENFREE Projects, 
+
+UMR IDEES, Université de Rouen, France
+
 Lastest upadate: April 2015
 
 This version is used to simulate Ae. aeypti population dispersal in MHKS study area, Delhi, India.
