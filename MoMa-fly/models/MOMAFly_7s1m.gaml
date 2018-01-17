@@ -1,6 +1,6 @@
 /******************************************
  *  MOMA Fly MHKS-7S-1M
- *  Author: MANEERAT Somsakun, UMR IDEES, Univesit� de Rouen, France
+ *  Author: MANEERAT Somsakun, UMR IDEES, Univesité de Rouen, France
  *  Last Update: 20/04/2015
  *  Please see licence information for  using MOMA
  *  =================================
@@ -9,9 +9,9 @@
  *  - Update mySpatObj.geom_limit in  SpatObj at initialisation
  *  - USE FUZZY STD
  *  - Correction: calculation of tempWater : use airTempmin for calculating airWaterMax as mentionned in Fock et al.,1933
- *  - implementation de l'équation qui fait varier le sun expo!
+ *  - implementation de l'Ã©quation qui fait varier le sun expo!
  *  - modification le calcul de nb BS ( enlever +0.5) et ajouter rnd(densAvg)
- *  - change parameter values: AVGEGG_SURFACE to� AVGEEG_BS = 50eggs/bs
+ *  - change parameter values: AVGEGG_SURFACE to  AVGEEG_BS = 50eggs/bs
  *  - modif actifRate function
  *  - modif C2 = 2 Wdmax = 70C2
  *  
@@ -87,7 +87,7 @@ global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 	 * SCENARIOS 
 	 ****************/
 	 int NB_ADULT_FEMALE <- 100 parameter: "Nb female per a breeding site" category: "Aedes scenario"; 
-	 list<int> listOrigBs <- [0,3954,2428,1203,3352,1345,2079] parameter: "N° Breeding site lists" category: "Aedes scenario"; 
+	 list<int> listOrigBs <- [0,3954,2428,1203,3352,1345,2079] parameter: "NÂ° Breeding site lists" category: "Aedes scenario"; 
 	 
 	
 	
@@ -95,7 +95,7 @@ global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 	 * 				AEDES'PARAMETERS
 	 *************************************************/
 	 float seed <- 354.0 parameter: true;
-	 int NB_POINT <- 5; // nb de point à tirer pour le choix des cibles
+	 int NB_POINT <- 5; // nb de point Ã  tirer pour le choix des cibles
 
 	 	
 	 //----- actions'time control ---------
@@ -134,7 +134,7 @@ global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 	 //------ lay egg probability -----------
 	 float MAX_SPEED_LAYEGG <- 0.05; //0.05eggs/s = 3eggs/mn
 	 float MIN_SPEED_LAYEGG <- 0.016; //0.016 eggs/s = 1egg/mn = 33eggs mn/oviposit
-	 float MIN_TEMP_LAYEGG <- 18.0;//Â°C
+	 float MIN_TEMP_LAYEGG <- 18.0;//Ã‚Â°C
 	 //------- re-bite probability -----------
 	 float MAX_STOCK_BLOOD <- 3.0;//maximum 3 mg/1 gono cycle
 	 
@@ -230,10 +230,8 @@ global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 	
 	/////////// LAND USE //////////////
 	float MAX_WORLDTEMPC <- 50.0;
-	float AVG_EGG_BSSURFACE <- 300.0; //max 750eggs/container avg size (Iquito) Wong J, Stoddard ST, Astete H, Morrison AC, et al. (2011) Oviposition Site Selection by the Dengue Vector Aedes aegypti and Its Implications for Dengue Control. PLoS Negl Trop Dis 5(4): e1015. doi:10.1371/journal.pntd.0001015; http://www.plosntd.org/article/info:doi/10.1371/journal.pntd.0001015
-	//AVG_EGG par m² a verifier la valeur car c'est a peu pres 70eggs par m2 (la valeur sortir de modèle) entre le mois may et oct dans Hopp, M.J and Foley J.A ( Global-scale relationships between climate and the dengue fever vector, aedes aegypti
-	
-	float MIN_TEMP_USECOOLER <- 20.0;//A CHANGER
+	float AVG_EGG_BSSURFACE <- 50.0; //adapted from Wong et al.,2011
+	float MIN_TEMP_USECOOLER <- 30.0;
 	
 	
 	/**********************************************************
@@ -284,7 +282,7 @@ global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 	float time_nectar;
 	float time_lay_egg;
 	
-	float step <- 1°mn; // how many seconds per step for the simulation?; // 1 step = 1mn (60s) 
+	float step <- 1Â°mn; // how many seconds per step for the simulation?; // 1 step = 1mn (60s) 
 			
 	int mn_sunrise;
 	int hr_sunrise;
@@ -437,7 +435,12 @@ global //schedules: ([world] + SpatObj + shuffle(Aedes) + Stat)
 			 }
 		}
 	}
-
+	
+	reflex updateWeather when: bNewDay
+	{
+		fGlobalTodayAirTempC <- (list_daily_max_temp[nb_days] + list_daily_min_temp[nb_days])/2;
+		fGlobalTodayRainfall <- list_daily_rain[nb_days];
+	} 
 		
 	action createSpatObj
 	{
@@ -972,15 +975,15 @@ entities
 		reflex checkCurrentAct when: bActive
 		{
 			float t <- bVarComputeExecTime ? machine_time : 0; 
-			//cette méthode a été changé dans la version 2
+			//cette mÃ©thode a Ã©tÃ© changÃ© dans la version 2
 			mySpatObj <- first(SpatObj overlapping self);
 			if (mySpatObj = nil) {mySpatObj <- SpatObj closest_to self;}
 			//write name + " - " + mySpatObj;
 			
-			//à chaque pas que l’Aedes soit active ! On a juste ajouté que si mySpatObj existe déjà depuis le pas de temps précédent, 
-			//il va faire overlaps qu’avec les objets voisinages du mySpatObj.
+			//Ã  chaque pas que lâ€™Aedes soit active ! On a juste ajoutÃ© que si mySpatObj existe dÃ©jÃ  depuis le pas de temps prÃ©cÃ©dent, 
+			//il va faire overlaps quâ€™avec les objets voisinages du mySpatObj.
 //			if mySpatObj != nil {
-//				mySpatObj <- first(mySpatObj.my_neighbors overlapping self); //overlaps seulement les obj voisinage de son précédente mySpatObj
+//				mySpatObj <- first(mySpatObj.my_neighbors overlapping self); //overlaps seulement les obj voisinage de son prÃ©cÃ©dente mySpatObj
 //				write "ni "+mySpatObj.name;
 //			} else {
 //				mySpatObj <- SpatObj closest_to self;	
@@ -1120,7 +1123,7 @@ entities
 			}
 				
 			
-			if(bestTarget = nil) //au commencement et Ã  la fin d'une activitÃ©
+			if(bestTarget = nil) //au commencement et ÃƒÂ  la fin d'une activitÃƒÂ©
 			{
 					if(fuzzyChsBestTarget()) 
 					{
@@ -1183,7 +1186,7 @@ entities
 										}
 										do layEgg;
 									}
-									else //libÃ©rer le bestTarget pour le nouveau dÃ©cision
+									else //libÃƒÂ©rer le bestTarget pour le nouveau dÃƒÂ©cision
 									{
 										point prv_loc <- location;
 										if(debug){write "wander for bs";}
@@ -1526,7 +1529,7 @@ entities
 		}
 	
 		/**************************************************************************
-		 * fuzzyObj old méthode-version std
+		 * fuzzyObj old mÃ©thode-version std
 		 * ************************************************************************/
 		bool fuzzyChsBestTarget
 		{	
@@ -1565,7 +1568,7 @@ entities
 					//point pt <- any_location_in(list_detectedObjs[i]); // choose randomly one location in a selected obj
 					geometry interZone <- (list_detectedObjs[i].shape inter perception_area);
 					
-					//if Aedes reaches the border of simulation zone, turn 90° till finding something
+					//if Aedes reaches the border of simulation zone, turn 90Â° till finding something
 					loop while: interZone = nil 
 					{
 					    heading <- heading - 90;
@@ -1577,13 +1580,13 @@ entities
 							
 					fMaxDistMyObj <- self distance_to point ((mySpatObj closest_points_with location) at 0);
 //
-//					//si la distance pour aller est inférieure de la distance pour atteindre le bord de MySpatObj, va au bord de l'objet
-//					//c'est pour éviter de la division par zéro?
-					if(fDistToObj < DIST_NOEFF) //si la distance dÃ©tectÃ©e se trouve dans l'objet lui mme, pas d'effet de distance (valeur maxi)
+//					//si la distance pour aller est infÃ©rieure de la distance pour atteindre le bord de MySpatObj, va au bord de l'objet
+//					//c'est pour Ã©viter de la division par zÃ©ro?
+					if(fDistToObj < DIST_NOEFF) //si la distance dÃƒÂ©tectÃƒÂ©e se trouve dans l'objet lui mme, pas d'effet de distance (valeur maxi)
 					{
 						fDistToObj <- DIST_NOEFF; //IF THE OBJ IS IN THE LIMIT OF MY OBJ, NO EFFECT OF DIST TO THE DECISION (CAUSE DIVIDE BY 1)
 					}
-				    else if(fDistToObj < fMaxDistMyObj) //si la distance dÃ©tectÃ©e se trouve dans l'objet lui mme, pas d'effet de distance (valeur maxi)
+				    else if(fDistToObj < fMaxDistMyObj) //si la distance dÃƒÂ©tectÃƒÂ©e se trouve dans l'objet lui mme, pas d'effet de distance (valeur maxi)
 					{
 						fDistToObj <- fMaxDistMyObj; //IF THE OBJ IS IN THE LIMIT OF MY OBJ, NO EFFECT OF DIST TO THE DECISION (CAUSE DIVIDE BY 1)
 					}	
@@ -1707,7 +1710,7 @@ entities
 		}
 		
 		/**************************************************************************************************
-		 * A7: fly randomly in the direction of the target with the amplitude of 30Â°left and 30Â° right
+		 * A7: fly randomly in the direction of the target with the amplitude of 30Ã‚Â°left and 30Ã‚Â° right
 		 *************************************************************************************************/
 		action flyToBestTarget
 		{
@@ -1874,7 +1877,7 @@ entities
 		action checkPhysioDevDone
 		{
 		
-			if(avgHourAirTempK_matrix[iSimRealDay, int(curTime)] >= MIN_TEMP_LAYEGG+ 273.15)//Â°K
+			if(avgHourAirTempK_matrix[iSimRealDay, int(curTime)] >= MIN_TEMP_LAYEGG+ 273.15)//Ã‚Â°K
 			{ 	
 				 if(iCmpGonoCycle > 1) //if the gono cycle is not the first time
 				 {
@@ -2043,13 +2046,13 @@ entities
 		int iWaitStckEggIn <- 0;
 		int iWaitStckEggOut <- 0;
 		int iTotWaitStck update: iWaitStckEggIn + iWaitStckEggIn;
-		list<float> fListStkEtoLIn <- []; //list's size 8 (maximum days to embryonate without death = 13Â°C)
-		list<float> fListStkLtoPIn <- []; // list's size = 30? -at 13Â°C
-		list<float> fListStkPtoAIn <- []; // list's size = 7 at 13Â°C
+		list<float> fListStkEtoLIn <- []; //list's size 8 (maximum days to embryonate without death = 13Ã‚Â°C)
+		list<float> fListStkLtoPIn <- []; // list's size = 30? -at 13Ã‚Â°C
+		list<float> fListStkPtoAIn <- []; // list's size = 7 at 13Ã‚Â°C
 		
-		list<float> fListStkEtoLOut <- []; //list's size 8 (maximum days to embryonate without death = 13Â°C)
-		list<float> fListStkLtoPOut <- []; // list's size = 30? -at 13Â°C
-		list<float> fListStkPtoAOut <- []; // list's size = 7 at 13Â°C
+		list<float> fListStkEtoLOut <- []; //list's size 8 (maximum days to embryonate without death = 13Ã‚Â°C)
+		list<float> fListStkLtoPOut <- []; // list's size = 30? -at 13Ã‚Â°C
+		list<float> fListStkPtoAOut <- []; // list's size = 7 at 13Ã‚Â°C
 		
 		int dayNeedEmbryo; //number of days needed to transit from eggs - larvae
 		int dayNeedPupat; // from larvae - pupae
@@ -2158,10 +2161,10 @@ entities
 			do calDailySpatObjAirTempC;
 			do calDailySpatObjWaterTempC;
 			
-			//calculer le nb de bs à partir de la densité dependant de la classe d'os
+			//calculer le nb de bs Ã  partir de la densitÃ© dependant de la classe d'os
 			if(bAvgDenseBSMode)
 			{
-				iNbBsInNoWater <- int(spcClass.fDenBsInNoWater * shape.area); //hasard sur la densité moyenne
+				iNbBsInNoWater <- int(spcClass.fDenBsInNoWater * shape.area); //hasard sur la densitÃ© moyenne
 				iNbBsOutNoWater <- int(spcClass.fDenBsOutNoWater * shape.area);
 			}
 			else
@@ -2418,7 +2421,7 @@ entities
 		 ************************************/
 		action updateNectarAttract
 		{
-			list_attrctTarget[(mapTargetIndex["nectar"])] <- spcClass.fNectarSourceRate;	//A rÃ©cupÃ©rer dans le shapefile via la valeur NDVI, pour l'instant rÃ©cupÃ©rÃ© via la classe
+			list_attrctTarget[(mapTargetIndex["nectar"])] <- spcClass.fNectarSourceRate;	//A rÃƒÂ©cupÃƒÂ©rer dans le shapefile via la valeur NDVI, pour l'instant rÃƒÂ©cupÃƒÂ©rÃƒÂ© via la classe
 		}
 		
 		
@@ -2436,17 +2439,17 @@ entities
 				fCurrNbCommPop <-	spcClass.fSurfPubRate * fInitPop * calPopCommVarRate();
 				fCurrNbTransPop <- spcClass.fSurfTransRate * fInitPop * calPopTransVarRate();
 				fHourDensPop  <- (fCurrNbResidPop + fCurrNbCommPop + fCurrNbTransPop)/shape.area;
-				list_attrctTarget[mapTargetIndex["blood"]]  <-fHourDensPop; //pondÃ©rer par la valeur max (fInitPop) pour avoir la valeur entre 0 -1
+				list_attrctTarget[mapTargetIndex["blood"]]  <-fHourDensPop; //pondÃƒÂ©rer par la valeur max (fInitPop) pour avoir la valeur entre 0 -1
 	 		}
 	 		else
 	 		{
-	 			list_attrctTarget[mapTargetIndex["blood"]] <- 0.0; //pondÃ©rer par la valeur max (fInitPop) pour avoir la valeur entre 0 -1
+	 			list_attrctTarget[mapTargetIndex["blood"]] <- 0.0; //pondÃƒÂ©rer par la valeur max (fInitPop) pour avoir la valeur entre 0 -1
 	 		}		
 		}
 		
 		
 		/*******************************************************************************************************************
-		 * Variation de population selon l'heure de la journÃ©e sur la surface rÃ©sidentiel
+		 * Variation de population selon l'heure de la journÃƒÂ©e sur la surface rÃƒÂ©sidentiel
 		 ******************************************************************************************************************/
 		float calPopResidVarRate
 		{
@@ -2454,7 +2457,7 @@ entities
 		}
 		
 		/********************************************************************************************************************
-		 * Variation de population selon l'heure dans une surface publique de type commercial ou Ã  fonction public
+		 * Variation de population selon l'heure dans une surface publique de type commercial ou ÃƒÂ  fonction public
 		 ********************************************************************************************************************/
 		float calPopCommVarRate
 		{
@@ -2463,7 +2466,7 @@ entities
 		
 		
 		/**********************************************************************************************
-		 * variation de population sur la surface reprÃ©sentante les voies de transport
+		 * variation de population sur la surface reprÃƒÂ©sentante les voies de transport
 		 *********************************************************************************************/
 		float calPopTransVarRate
 		{
@@ -2473,8 +2476,8 @@ entities
 				
 		/************************************************************************************
 		 * 
-		 * attraction des BS est liÃ©e au nombre de gÃ®te remplie d'eau qui est en fonction de
-		 * l'usage de cooler quand la tempÃ©rature est augmentÃ©e pour des gÃ®te Ã  l'intÃ©rieur
+		 * attraction des BS est liÃƒÂ©e au nombre de gÃƒÂ®te remplie d'eau qui est en fonction de
+		 * l'usage de cooler quand la tempÃƒÂ©rature est augmentÃƒÂ©e pour des gÃƒÂ®te ÃƒÂ  l'intÃƒÂ©rieur
 		 ************************************************************************************/
 		action updateBsAttract //  = cal_iNbBsInWithWater
 		{
@@ -2496,14 +2499,14 @@ entities
 				
 				//////////CALCULATE NB BS INSIDE (depending on temperature) /////////////////
 				fDepSocio <- calEffSocioPracRate(fGlobalTodayAirTempC); //temperature depends on socio class				
-				iNbBsInWithWater <- int(iInitBsIn * (1 + fDepSocio));// calculer Ã  partir de la valeur minimal (c'est pour Ã§a que je fasse + valeur min)	
+				iNbBsInWithWater <- int(iInitBsIn * (1 + fDepSocio));// calculer ÃƒÂ  partir de la valeur minimal (c'est pour ÃƒÂ§a que je fasse + valeur min)	
 				//------------- no limit -------------
 //				if(iNbBsInWithWater > iNbBsInNoWaterMax){iNbBsInWithWater <- iNbBsInNoWaterMax;}
 //				else if (iNbBsInWithWater < iNbBsInNoWaterMin){iNbBsInWithWater <- iNbBsInNoWaterMin;}
 				
 				/////////////// BS OUTSIDE ////////////////
 				fDepRain <- calRainEffRate();
-				iNbBsOutWithWater <- int(iInitBsOut * (1 + fDepRain));// quantitÃ© minimale + nb calculÃ© Ã  base de quant min
+				iNbBsOutWithWater <- int(iInitBsOut * (1 + fDepRain));// quantitÃƒÂ© minimale + nb calculÃƒÂ© ÃƒÂ  base de quant min
 //				if(iNbBsOutWithWater > iNbBsOutNoWaterMax){iNbBsOutWithWater <- iNbBsOutNoWaterMax;}
 //				else if (iNbBsOutWithWater < iNbBsOutNoWaterMin){iNbBsOutWithWater <- iNbBsOutNoWaterMin;}
 			
@@ -2521,12 +2524,12 @@ entities
 		
 		/******************************************************************************************************
 		 * A MODIFIER / VERIFIER 
-		 * attraction des zone de repos est liÃ©e au niveau de la lumiÃ¨re et la tempÃ©rature (moins chaud) de l'espace
+		 * attraction des zone de repos est liÃƒÂ©e au niveau de la lumiÃƒÂ¨re et la tempÃƒÂ©rature (moins chaud) de l'espace
 		 *******************************************************************************************************/
 		action updateRestAttract
 		{
 			//give an atrraction value for resting zone (shady)
-			list_attrctTarget[mapTargetIndex["shade"]] <- spcClass.fRestSourceRate; // seul le % de prÃ©sence de zone ombragÃ©e suffit			
+			list_attrctTarget[mapTargetIndex["shade"]] <- spcClass.fRestSourceRate; // seul le % de prÃƒÂ©sence de zone ombragÃƒÂ©e suffit			
 	
 		}		
 		
@@ -2537,7 +2540,7 @@ entities
 		float calRainEffRate
 		{
 			float fValue <- 0.0;
-			//correction de fonction pour qu'il correspond mieux à Yusoff - corrigé le 31/03/2015
+			//correction de fonction pour qu'il correspond mieux Ã  Yusoff - corrigÃ© le 31/03/2015
 			if(fGlobalTodayRainfall > 0) and (fGlobalTodayRainfall <= WDMAX)
 			{
 				fValue <- (fGlobalTodayRainfall / WDMAX)^C2;//c2=2, wdmax = 70mm
@@ -2562,7 +2565,7 @@ entities
 				float fValue <- 0.0;
 				if(spcClass.socialClass = "low" and fAirTemp >= MIN_TEMP_USECOOLER)
 				{
-					fValue <- (fAirTemp/MAX_WORLDTEMPC)^2; // a voir l'Ã©quation
+					fValue <- (fAirTemp/MAX_WORLDTEMPC)^2; // a voir l'ÃƒÂ©quation
 				}
 				return fValue;
 		}
@@ -2586,7 +2589,7 @@ entities
 		/********************************************************************************************************************
 		 * Eggs can hatch when the BS is filled with water. We must distinguish the filling method according to the location
 		 * of the BS (in = precipitation, out = temperature, season)
-		 * fct(fGlobalRainfall, fGlobalTemperarue, un paramÃ¨tre de vidange/remplissage journalier (random 100 <= 5)
+		 * fct(fGlobalRainfall, fGlobalTemperarue, un paramÃƒÂ¨tre de vidange/remplissage journalier (random 100 <= 5)
 		 **********************************************************************************************************************************/
 		action calHatchEggQntRate
 		{
@@ -2595,7 +2598,7 @@ entities
 		}
 		
 		/******************************************
-		 * fonction est appelÃ©e par un agent AEDES
+		 * fonction est appelÃƒÂ©e par un agent AEDES
 		 ******************************************/
 		 float getCapaHaveEgg
 		 {
@@ -2643,7 +2646,7 @@ entities
 				{
 					fNbNewL<- NOMINAL_DAILYSURV_LARVAE_RATE* fLarvaSurvTempRate * fListStkLtoP[i + 1];
 					fListStkLtoP[i] <- (fListStkLtoP[i] + fNbNewL) with_precision 1;
-					fListStkLtoP[i+1] <- 0; //vider stock of the previous day (include mortalité)
+					fListStkLtoP[i+1] <- 0; //vider stock of the previous day (include mortalitÃ©)
 				}
 				
 				//add the new larvae to the lastest postion on the list (depend on the day to pupate)	
@@ -2726,7 +2729,7 @@ entities
 		survival increases linearly with two extreme limits DAILY_MIN_TEMP from 0.05 at LOW_TEMP_LIMIT to 1.0 at HIGH_TEMP_LIMIT 
 		(cf: Skeeter Buster (Text S2 : 
 		Details of CIMSiM elements used in Skeeter Buster, together with modifications adopted) for the function
-		C'est moi qui fait l'Ã©quation 
+		C'est moi qui fait l'ÃƒÂ©quation 
 		*************************************************************************************************************************/
 	    float calTempSurvRate (float temp, float temp1, float temp2, float rate1, float rate2)
 	    {
@@ -2841,18 +2844,18 @@ entities
 				bDie <- true;
 	
 			}	
-			else //if the temperature is too cold < 0Â°c or too hot > 50Â°C, kill all stock
+			else //if the temperature is too cold < 0Ã‚Â°c or too hot > 50Ã‚Â°C, kill all stock
 			{
 				if(bInside)
 				{
-					release fListStkEtoLIn; //list's size 8 (maximum days to embryonate without death = 13Â°C)
-					release fListStkLtoPIn; // list's size = 30? -at 13Â°C
+					release fListStkEtoLIn; //list's size 8 (maximum days to embryonate without death = 13Ã‚Â°C)
+					release fListStkLtoPIn; // list's size = 30? -at 13Ã‚Â°C
 					release fListStkPtoAIn;  
 				}
 				else //outside
 				{
-					release fListStkEtoLOut; //list's size 8 (maximum days to embryonate without death = 13Â°C)
-					release fListStkLtoPOut; // list's size = 30? -at 13Â°C
+					release fListStkEtoLOut; //list's size 8 (maximum days to embryonate without death = 13Ã‚Â°C)
+					release fListStkLtoPOut; // list's size = 30? -at 13Ã‚Â°C
 					release fListStkPtoAOut;  
 				}
 				bDie <- false;
@@ -2862,8 +2865,8 @@ entities
 		
 		
 		/*********************************************************************************************************
-		 * le niveau d'exposition à l'extérieure varie selon les heures de la journée (une fonction polynominale).
-		 * à l'intérieure, on suppose que l'objet est tj sous la protection du soleil donc valeur = tj 0.
+		 * le niveau d'exposition Ã  l'extÃ©rieure varie selon les heures de la journÃ©e (une fonction polynominale).
+		 * Ã  l'intÃ©rieure, on suppose que l'objet est tj sous la protection du soleil donc valeur = tj 0.
 		 ********************/	
 		reflex dynamicSunExpo when: bNewHour
 		{
